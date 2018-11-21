@@ -310,7 +310,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scripts\BallTriggeringScript.cs" />
-    <Compile Include="Assets\Scripts\TriggerCollideHandler.cs" />
     <Compile Include="Assets\Scripts\ViveControllersGrab.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_GazeTracker.cs" />
     <Compile Include="Assets\SteamVR\Extras\SteamVR_LaserPointer.cs" />

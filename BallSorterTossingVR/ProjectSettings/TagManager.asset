@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Ball
   - Trigger
+  - Goal
   layers:
   - Default
   - TransparentFX

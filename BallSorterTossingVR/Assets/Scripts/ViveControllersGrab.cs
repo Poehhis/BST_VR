@@ -12,17 +12,18 @@ public class ViveControllersGrab : MonoBehaviour {
 	public GameObject ball;
 	BallTriggeringScript bts;
 	bool triggered;
-
+	private Rigidbody rb;
 
 	// Use this for initialization
 	void Start () {
 		bts = ball.GetComponent<BallTriggeringScript>();
+		rb = ball.GetComponent<Rigidbody>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		trackedObj = GetComponent<SteamVR_TrackedObject>();
-
+		Debug.Log(bts.entered);
 		// 1
 		if (Controller.GetAxis() != Vector2.zero)
 		{
@@ -33,6 +34,8 @@ public class ViveControllersGrab : MonoBehaviour {
 		if (Controller.GetHairTriggerDown())
 		{
 			Debug.Log(gameObject.name + " Trigger Press");
+			rb.velocity = Vector3.zero;
+			rb.angularVelocity = Vector3.zero;
 			ball.transform.position = new Vector3(-.7f, 0.954f, 1.336f);
 			
 		}
@@ -52,6 +55,7 @@ public class ViveControllersGrab : MonoBehaviour {
 			if (collidingObject)
 			{
 				GrabObject();
+				StartCoroutine(Wait());
 			}
 
 		}
@@ -66,6 +70,9 @@ public class ViveControllersGrab : MonoBehaviour {
 		{
 			Debug.Log(gameObject.name + " Grip Release");
 		}*/
+
+		//Controll vibration
+		
 	}
 
 	private SteamVR_Controller.Device Controller
@@ -147,4 +154,19 @@ public class ViveControllersGrab : MonoBehaviour {
 		objectInHand = null;
 	}
 
+	IEnumerator Wait()
+	{
+		ushort pulse = 0;
+		if ((double)rb.mass == 1.0) pulse = 400;
+		if ((double)rb.mass == 1.25) pulse = 2000;
+		if ((double)rb.mass == 1.5) pulse = 3999;
+
+		while (true)
+		{ 
+			SteamVR_Controller.Input((int)trackedObj.index).TriggerHapticPulse(pulse);
+			yield return new WaitForSeconds(0.05f);
+			if (bts.entered == true) break;
+		}
+		//print(Time.time);
+	}
 }
