@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class BallTriggeringScript : MonoBehaviour {
 
+    Scene scene;
 	public bool entered = false;
 	public GameObject table;
 	private Collider tabCol;
@@ -27,11 +29,43 @@ public class BallTriggeringScript : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		scoreText.text = "Ball#: " + ballNbr +" Points "+ points +"/20";
-	}
+	void Update ()
+    {
+        scene = SceneManager.GetActiveScene();
+                if (scene.name == "TrialScene")
+                {
+                    scoreText.text = "Ball#: " + ballNbr + " Points " + points + "/9";
+                    Debug.Log(points);
+                    if (points == 9) SceneManager.LoadScene("MainScene");
+                }
+                else
+                {
+                scoreText.text = "Ball#: " + ballNbr + " Points " + points + "/20";
+            
+                }
+        
+                //return ball with no points 
+                if (gameObject.transform.position.z >= 7f)
+                {
+                    rb.velocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    ballNbr++;
+                    //Check if it's a last ball
+                    if (ballNbr >= 21) gameObject.transform.position = new Vector3(-.7f, 0.954f, -1.336f);
+                    else
+                    {
+                        gameObject.transform.position = new Vector3(-.7f, 0.954f, 1.336f);
+                    }
+            
+                    SwapBall();
+            
+                    entered = false;
+                    tabCol.enabled = true;
+                }
+     }
 
-	private void OnTriggerEnter(Collider other)
+
+private void OnTriggerEnter(Collider other)
 	{
 		if (other.gameObject.tag == "Trigger")
 		{
@@ -67,12 +101,20 @@ public class BallTriggeringScript : MonoBehaviour {
 
 			rb.velocity = Vector3.zero;
 			rb.angularVelocity = Vector3.zero;
-			
-			rb.mass = varMass[Random.Range(0,varMass.Length)];
-			
-			gameObject.transform.position = new Vector3(-.7f, 0.954f, 1.336f);
-			ballNbr++;
-			entered = false;
+
+            ballNbr++;
+
+            //When one have thrown 20 balls
+            if (ballNbr >= 21) gameObject.transform.position = new Vector3(-.7f, 0.954f, -1.336f);
+            else
+            {
+                gameObject.transform.position = new Vector3(-.7f, 0.954f, 1.336f);
+            }
+            
+            
+            SwapBall();
+
+            entered = false;
 			tabCol.enabled = true;
 		}
 	}
@@ -95,6 +137,22 @@ public class BallTriggeringScript : MonoBehaviour {
 		//print(Time.time);
 		yield return new WaitForSeconds(time);
 		tabCol.enabled = true;
-		//print(Time.time);
-	}
+    //print(Time.time);
+    }
+    //Change mass of the object randomly
+    void SwapBall()
+    {
+        varMass = new[] { 1.0f, 1.25f, 1.5f };
+        if (scene.name == "TrialScene")
+        {
+            if (ballNbr >= 1 && ballNbr <= 3) rb.mass = varMass[0];
+            if (ballNbr >= 4 && ballNbr <= 6) rb.mass = varMass[1];
+            if (ballNbr >= 7 && ballNbr <= 9) rb.mass = varMass[2];
+        }
+        else
+        {
+            rb.mass = varMass[Random.Range(0, varMass.Length)];
+        }
+        
+    }
 }
