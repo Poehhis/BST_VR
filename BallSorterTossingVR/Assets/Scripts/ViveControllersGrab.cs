@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text;
 
 public class ViveControllersGrab : MonoBehaviour {
 
@@ -14,11 +15,13 @@ public class ViveControllersGrab : MonoBehaviour {
 	bool triggered;
 	private Rigidbody rb;
     public ushort pulse;
-
+    ArduinoBridge ab;
+    
 	// Use this for initialization
 	void Start () {
 		bts = ball.GetComponent<BallTriggeringScript>();
 		rb = ball.GetComponent<Rigidbody>();
+        ab = ball.GetComponent<ArduinoBridge>();  
 	}
 	
 	// Update is called once per frame
@@ -38,7 +41,8 @@ public class ViveControllersGrab : MonoBehaviour {
 			rb.velocity = Vector3.zero;
 			rb.angularVelocity = Vector3.zero;
 			ball.transform.position = new Vector3(-.7f, 0.954f, 1.336f);
-			
+
+            //ab.msg = true;
 		}
 
 		// 3
@@ -51,7 +55,7 @@ public class ViveControllersGrab : MonoBehaviour {
 		// 4
 		if (Controller.GetPressDown(SteamVR_Controller.ButtonMask.Grip))
 		{
-			Debug.Log(gameObject.name + " Grip Press");
+			//Debug.Log(gameObject.name + " Grip Press");
 
 			if (collidingObject)
 			{
