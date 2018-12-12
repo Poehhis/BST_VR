@@ -10,6 +10,8 @@ public class ArduinoBridge : MonoBehaviour {
 
     private SerialPort stream;
     public bool msg = false;
+    public bool grab = false;
+    public bool grabbed = false;
     private float mass;
     BallTriggeringScript bts;
 
@@ -89,6 +91,7 @@ public class ArduinoBridge : MonoBehaviour {
 	void Update () {
         mass = bts.ballMass;
         if (msg == true) MessageTest(mass);
+       // if (grab == true) GrabMessage();
         if (bts.sceneChange == true) stream.Close();
 	}
 
@@ -112,6 +115,25 @@ public class ArduinoBridge : MonoBehaviour {
         );
         msg = false;
     }
+
+    //Sends message waits for reply and confirms reply by "false"
+   /* void GrabMessage()
+    {
+        //Debug.Log("Mass of the ball: " + ballmass);
+        //Sending arduino a message "ECHO X"
+        WriteToArduino("PING");
+
+        //wait for reply and grab object
+        StartCoroutine
+        (
+            AsynchronousReadFromArduino
+            ((string s) => Debug.Log(s),        // Callback
+                () => Debug.LogError("Error!"), // Error callback
+                10000f                          // Timeout (milliseconds)
+            )
+        );
+        grab = false; 
+    }*/
 
     //Use this function to write to Arduino
     public void WriteToArduino(string message)

@@ -10,6 +10,7 @@ public class BallTriggeringScript : MonoBehaviour {
     ArduinoBridge ab;
 	public bool entered = false;
 	public GameObject table;
+    public GameObject hand;
 	private Collider tabCol;
 	private int handleTime = 0;
 	private Rigidbody rb;
@@ -24,6 +25,8 @@ public class BallTriggeringScript : MonoBehaviour {
 	private int ballNbr;
     public float ballMass;
     public bool sceneChange;
+    private bool holding;
+    
     // Use this for initialization
     void Start () {
 		tabCol = table.GetComponent<Collider>();
@@ -33,6 +36,7 @@ public class BallTriggeringScript : MonoBehaviour {
 		ballNbr = 1;
         SwapBall();
         sceneChange = false;
+        holding = false;
     }
 	
 	// Update is called once per frame
@@ -86,14 +90,26 @@ public class BallTriggeringScript : MonoBehaviour {
             entered = false;
             tabCol.enabled = true;
         }
+
+        //grabbing and holding of the ball via pneumatics
+        if (holding == true)
+        {
+            gameObject.transform.position = hand.transform.position;
+        }
      }
 
 
 private void OnTriggerEnter(Collider other)
 	{
+        if (other.gameObject.tag == "Hand")
+        {
+            holding = true;      
+        }
+
 		if (other.gameObject.tag == "Trigger")
 		{
 			entered = true;
+            holding = false;
             Destroy(infoText);
 			gameObject.transform.position = new Vector3(other.transform.position.x, other.transform.position.y, other.transform.position.z);
 
@@ -179,13 +195,13 @@ private void OnTriggerEnter(Collider other)
             if (ballNbr >= 7 && ballNbr <= 9) rb.mass = varMass[2];
             ballMass = rb.mass;
             //Debug.Log("bts ball mass: " + ballMass);
-            ab.msg = true;
+            if (scene.name == "TrialScenePneumo" || scene.name == "MainScenePneumo") ab.msg = true;
         }
         else
         {
             rb.mass = varMass[Random.Range(0, varMass.Length)];
             ballMass = rb.mass;
-            ab.msg = true;
+            if (scene.name == "TrialScenePneumo" || scene.name == "MainScenePneumo") ab.msg = true;
         }
     }
 }
