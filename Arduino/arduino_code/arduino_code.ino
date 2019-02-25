@@ -4,14 +4,22 @@
 
 SerialCommand sCmd;
 
+//relays pin number
 int relay = 5;
+
+// analog pin number for pressure metering
 int pressPin = A0;
+
+//next 4 initialized variables are for pressure handling
 float pressure = 0.0f;
 float bar= 0.0f;
 float maxpress = 0.5f;
-int count = 0;
 float avrgPress;
 
+//count variable is for average pressure calculating
+int count = 0;
+
+float avrgPress;
 void setup() 
 { 
   pinMode(relay, OUTPUT);
@@ -20,26 +28,30 @@ void setup()
   Serial.begin(9600);
   while (!Serial);
   
-  //What happens when "ECHO X" command is received
+  //What happens when "ECHO" or "PING" commands are received
   sCmd.addCommand("ECHO", echoHandler);
   sCmd.addCommand("PING", grabHandler);
 }
 
 void loop() 
 {    
+  //Add pressure value on top of previous each loop count
   pressure = pressure + analogRead(pressPin);
   count ++;
+
+  //when there is 10 pressure values stacked, 
+  //calculate average pressure and reset state
   if(count >= 10)
   {
      avrgPress = pressure / 10.0f;
      pressure = 0.0f;
      count = 0; 
   }
-      
-  bar = -1.42307 + avrgPress * 0.01499;
-  //Serial.println(bar);
 
-  //Read serial if theres input
+  //transform value to bars
+  bar = -1.42307 + avrgPress * 0.01499;
+
+  //Read serial if there is an input
   if (Serial.available() > 0) sCmd.readSerial();
   
   //if pressure goes over wanted value then valve closes
@@ -48,13 +60,15 @@ void loop()
     digitalWrite(relay, HIGH);
   }  
 
+  //open valve and let pressure flow in if 
+  //pressure inside is less than 0.1 bar
   if(bar < 0.1f)
   {
     digitalWrite(relay, LOW); //valve is open  
   }
 }
 
-//how does arduino handle different states
+//how does arduino handle different different "ECHO arg" commands
 void echoHandler () {
   char *arg;
   arg = sCmd.next();
@@ -73,7 +87,7 @@ void echoHandler () {
       maxpress=0.5f;
     }
     
-    //send value of max pressure and arg back to unity when max pressure is assigned
+    //send value of max pressure and arg back to Unity as "confirmation"
     String msgdata = String(maxpress) + " I " + arg + " I ";
     Serial.println( msgdata );
   }
