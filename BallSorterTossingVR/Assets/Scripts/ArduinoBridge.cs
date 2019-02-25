@@ -1,12 +1,14 @@
-﻿using System.Collections;
+﻿/* Parts of this code are copied from:
+ * ArduinoConnector by Alan Zucconi
+ * http://www.alanzucconi.com/?p=2979
+ */
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.IO.Ports;
 
 public class ArduinoBridge : MonoBehaviour {
-    /* The serial port where the Arduino is connected. */
-    //public string port = "COM4";
 
     private SerialPort stream;
     public bool msg = false;
@@ -15,13 +17,13 @@ public class ArduinoBridge : MonoBehaviour {
     private float mass;
     BallTriggeringScript bts;
 
+    //opening of the serialport to arduino
     public void Open()
     {
-        // Opens the serial port
+        // Opens the serial port COM4 with baud rate 9600
         stream = new SerialPort("COM4", 9600);
         stream.ReadTimeout = 50;
         stream.Open();
-        //this.stream.DataReceived += new SerialDataReceivedEventHandler(DataReceivedHandler);
     }
 
     //Use this function to read from Arduino
@@ -38,7 +40,7 @@ public class ArduinoBridge : MonoBehaviour {
         }
     }
 
-    //This function is for a response waiting time
+    //This function is for a response waiting time from arduino
     public IEnumerator AsynchronousReadFromArduino(Action<string> callback, Action fail = null, float timeout = float.PositiveInfinity)
     {
         DateTime initialTime = DateTime.Now;
@@ -78,28 +80,27 @@ public class ArduinoBridge : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        //open serial 
+        //Opening port to arduino
         Open();
-        //init for ball mass
+        //initializing ball mass
         bts = gameObject.GetComponent<BallTriggeringScript>();
-        
-        //Call messsageTest for initializing
-        //MessageTest();
     }
 	
 	// Update is called once per frame
 	void Update () {
         mass = bts.ballMass;
+
+        //if there is message to be sent then send mass of the ball to arduino via "ECHO arg" command 
         if (msg == true) MessageTest(mass);
-       // if (grab == true) GrabMessage();
+        
+        //if scene is changed close the stream
         if (bts.sceneChange == true) stream.Close();
 	}
 
-    //Sends message waits for reply and confirms reply by "false"
+    //Sends message, waits for reply and sets message state to false
     void MessageTest(float ballmass)
     {
-        //Debug.Log("Mass of the ball: " + ballmass);
-        //Sending arduino a message "ECHO X"
+        //Sending arduino a message "ECHO arg"
         if (Mathf.Approximately(ballmass, 1.0f)) WriteToArduino("ECHO 1");
         if (Mathf.Approximately(ballmass, 1.25f)) WriteToArduino("ECHO 2");
         if (Mathf.Approximately(ballmass, 1.5f)) WriteToArduino("ECHO 3");
@@ -113,6 +114,8 @@ public class ArduinoBridge : MonoBehaviour {
                 10000f                          // Timeout (milliseconds)
             )
         );
+        
+        //reset message state
         msg = false;
     }
 
